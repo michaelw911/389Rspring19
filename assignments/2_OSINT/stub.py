@@ -29,7 +29,7 @@ def caller(passwords):
   for password in passwords:
     p = brute_force(host, port, username, password)
     if "Fail" in p:
-      #print 'Failed Password:',password
+      print 'Failed Password:',password
       pass
     else:
       print 'We got it User:',username,'Password:',password

@@ -39,4 +39,7 @@ Digital acknowledgement: *Michael Wong*
 ### Part 2 (75 pts)
   1. Flag:
    - CMSC389R-{brut3_f0rce_m4ster}
-*Please use this space to detail your approach and solutions for part 2. Don't forget to upload yourcompleted source code to this /writeup directory as well!*
+   - CMSC389R-{YWX4H3d3Bz6dx9lG32Odv0JZh} (located in AB4300.txt, file mentioned on pastebin)
+
+  2. Approach Explanation
+   - I was able to get into the web server by creating and running a bruteforce socket python script that tried passwords form the rockyou.txt (a file of the most common passwords that have been found in breaches). I targerted an port 1337, a port left open for "waste", with the username "v0idcache". I knew I found the correct password once I was got "success" and was ble to access the system shell after providing credentials through "nc 142.93.136.81 1337". Inside the system shell, I was able to locate the file /home/flag.txt, finding CMSC389R-{brut3_f0rce_m4ster}. Inside of /home/files/, I was to locate the file, AB4300.txt, a file that was deemed important form a pastebin conversation, CMSC389R-{YWX4H3d3Bz6dx9lG32Odv0JZh}. Source code in located in a file called "stub.py"
