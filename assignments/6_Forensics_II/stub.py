@@ -10,12 +10,11 @@ import time
 def bork(msg):
     sys.exit(msg)
 
-
-def reverse(s):
-  str = ""
-  for i in s:
-    str = i + str
-  return str
+def new_image(name, extension, byte_arr):
+  file_name = name + "." + extension
+  print ("%s has been created" % file_name)
+  image = open(file_name, "wb")
+  image.write(byte_arr)
 
 # Some constants. You shouldn't need to change these.
 MAGIC = 0x8BADF00D
@@ -46,7 +45,13 @@ with open(sys.argv[1], 'rb') as fpff:
 # Hint: you might find it easier to use an index/offset variable than
 # hardcoding ranges like 0:8
 
-magic, version, timestamp, author = struct.unpack("<LLLQ", data[0:20])
+magic, version, timestamp  = struct.unpack("<LLL", data[0:12])
+author = ''.join(struct.unpack("<8s", data[12:20]))
+num_sections = struct.unpack("<L", data[20:24])
+num_sections = int(num_sections[0])
+
+if (num_sections <= 0):
+  bork("Expected a positive number, got %d" % int(num_sections))
 
 if magic != MAGIC:
     bork("Bad magic! Got %s, expected %s" % (hex(magic), hex(MAGIC)))
@@ -59,7 +64,9 @@ print("------- HEADER -------")
 print("MAGIC: %s" % hex(magic))
 print("VERSION: %d" % int(version))
 print("TIMESTAMP: %s" % time.ctime(timestamp))
-print("AUTHOR: %s" % reverse(str(hex(author)[2:]).decode("hex")))
+print("AUTHOR: %s" % str(author))
+print("SECTIONS: %d" % int(num_sections))
+
 
 
 # We've parsed the magic and version out for you, but you're responsible for
@@ -67,129 +74,86 @@ print("AUTHOR: %s" % reverse(str(hex(author)[2:]).decode("hex")))
 
 print("-------  BODY  -------")
 
+start = 24
 
-start = 20
-end = 28
+for i in range(0, num_sections):
+  stype, slen = struct.unpack("<LL", data[start:start+8])
+  slen = int(slen)
+ 
+  #print("Section: Num: %d Type: %s Length: %d" % (i, stype, slen))
 
-line = 1
-while line:
-  #time.sleep(1)
-  try:
-    stype, slen = struct.unpack("<LL", data[start:end])
-    print stype
-    print len(data)
-    #slen, stype = struct.unpack("<LL", data[start:end])
-    print ("Stype %s %d " % (hex(stype), int(stype)))
-    #print ("dlen %s  %d" % (hex(slen), int(slen)))
-    #print ("Stype %s slen %s" % (hex(stype), hex(slen)))
+  if stype == SECTION_ASCII:
+    unpack_str = "<%ds" % slen
+    output = ''.join(struct.unpack(unpack_str, data[start+8:(start+8+slen)]))
+    print("ASCII Output: %s" % (output))
 
-  #except: 
-    #bork("End of input")
-  finally:
-    #start = start + 1 
-    #end = end + 1 
+  elif stype == SECTION_UTF8:
+    unpack_str = "<%ds" % slen
+    output = ''.join(struct.unpack(unpack_str, data[start+8:(start+8+slen)]))
+    output = output.decode('utf-8')
+    print("UTF-8 Output: %s" % (output))
+  
+  elif stype == SECTION_WORDS:
+    num_words = int(slen/4)
+    unpack_str = "%s" % 'L'*num_words
+    unpack_str = "<" + unpack_str
+    output = ''.join(struct.unpack(unpack_str, data[start+8:(start+8+slen)]))
+    print("Words Output: %s" % (output))
 
-    if stype == SECTION_ASCII:
-      #slen = 0
-      #while (slen == 0):
-       # slen, gar = struct.unpack("<BB", data[start:end+1])
-       # start = start + 1 
-       # end = end + 1 
-      
-      print ("ASCII header: SLEN bytes %d " % (int(slen)))
+  elif stype == SECTION_COORD:
+    if slen == 16:
+      unpack_str = "<dd"
+      coordinates = struct.unpack(unpack_str, data[start+8:(start+8+slen)])
+      # Checking for valid coordinates
+      x_coord = coordinates[0]
+      y_coord = coordinates[1]
 
-      print sys.getsizeof(slen)
-      print sys.getsizeof(stype)
+      if (x_coord > 180) or (x_coord < -180) or (y_coord > 180) or (y_coord < -180) :
+        bork("Invalid coordinates")
+      else :
+        print("Coordinates Output: %s" % str(coordinates))
+    else:
+      bork("SECTION COORD Requires 16 bytes, only recieved %d" % slen)
 
-      total = sys.getsizeof(slen) + sys.getsizeof(stype) + int(slen)
-      print("total size %d" % total)
-      output =""
-      start = end-1
-      for i in range(0, int(slen)):
-        start = start  +1
-        loc_end = start + 1
-        char = struct.unpack("<B", data[start:loc_end])
+  elif stype == SECTION_REFERENCE:
+    if slen == 4:
+      unpack_str = "<L"
+      ref = struct.unpack(unpack_str, data[start+8:(start+8+slen)])
+      ref = ref[0]
+      print("Reference Output: %d" % ref)
+    else:
+      bork("Reference must have exactly 4 bytes, this has %d" % slen)
+  elif stype == SECTION_PNG:
+    unpack_str = "%s" % 'B'*(slen)
+    unpack_str = "<" + unpack_str
+    png_sig = [137, 80, 78, 71, 13, 10, 26, 10]
+    png_data = struct.unpack(unpack_str, data[start+8:(start+8+slen)])
 
-        char = char[0]
+    png = png_sig + list(png_data)
 
-        print ("Ascii Stype %s %d %c" % (format(char, 'x'), int(char), chr(char)))
-        output = output + chr(char)
-        #start = start + 1
-        #$end = end + 1
-     
-      print output
-      time.sleep(1)
-      start = loc_end
-      end = loc_end + 8
+    new_image("fpff-extracted-png", "png", bytearray(png))
 
-      print start
-      print end
+  elif stype == SECTION_GIF87:
+    unpack_str = "%s" % 'B'*(slen)
+    unpack_str = "<" + unpack_str
+    gif87_sig = [47, 49, 46, 38, 37, 61]
+    gif87_data = struct.unpack(unpack_str, data[start+8:(start+8+slen)])
 
+    gif87 = gif87_sig + list(png_data)
 
-    elif stype == SECTION_UTF8:
-      print ("utf8 header: SLEN bytes %d")
-      start = start + 4
-      end = end + 4
+    new_image("fpff-extracted-gif87", "gif", bytearray(gif87))
 
+  elif stype == SECTION_GIF89:
+    unpack_str = "%s" % 'B'*(slen)
+    unpack_str = "<" + unpack_str
+    gif89_sig = [47, 49, 46, 38, 39, 61]
+    gif89_data = struct.unpack(unpack_str, data[start+8:(start+8+slen)])
 
-    elif stype  == SECTION_WORDS:
-      print ("words header: SLEN bytes %d")
-    elif stype  == SECTION_DWORDS:
-      print ("dwords header: SLEN bytes %d")
-    elif stype  == SECTION_DOUBLES:
-      print ("doubles header: SLEN bytes %d" % int(slen))
-      start = start + 4
-      end = end + 4
-    elif stype  == SECTION_COORD:
-      print ("coord header: SLEN bytes %d"  % (int(slen)))
+    gif89 = gif89_sig + list(png_data)
+    new_image("fpff-extracted-gif89", "gif", bytearray(gif89))
+    
 
-      start = end
-      loc_end = start + 16
-      x, y = struct.unpack("<QQ", data[start:loc_end])
-      time.sleep(1)
-      
-      output = (x,y)
+  start = start + slen + 8
 
 
-      print output
-      time.sleep(1)
 
-      start = loc_end
-      end = loc_end + 8
-
-
-    elif stype  == SECTION_REFERENCE:
-      print ("reference header: SLEN bytes %d")
-    elif stype  == SECTION_PNG:
-      
-      start = end - 1
-
-      print ("png header: SLEN bytes %d" % (int(slen)))
-      time.sleep(1)
-      png = "89  50  4e  47  0d  0a  1a  0a"
-      for i in range(0, int(slen)-8):
-        
-       # time.sleep(1)
-        start = start + 1
-        loc_end = start + 1
-        try :
-          char = struct.unpack("<B", data[start:loc_end])
-          char = char[0]
-        finally:
-
-          print ("Byte %d png Stype %s %d " % (int(i), hex(char), int(char)))
-          print ("Start %d End %d" % (start, loc_end))
-          png = png + " " + format(char, 'x')
-
-
-      print png
-      time.sleep(1)
-
-
-    elif stype  == SECTION_GIF87:
-      print ("gif87 header: SLEN bytes %d")
-    elif stype  == SECTION_GIF89:
-      print ("gif89 header: SLEN bytes %d")
-    else :
-      start = start + 4
-      end = end + 4
