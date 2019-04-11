@@ -2,10 +2,10 @@ section .text
 
 global main
 main:
-  push rbp
-  mov rbp, rsp
-  sub rsp, 0x10
-  mov DWORD [rbp-0x8], 0x1ceb00da
+  push rbp      #push rbd ("base-pointer") onto stack
+  mov rbp, rsp  #move rbd ("base-pointer") to rsp ("stack pointer")
+  sub rsp, 0x10 # 0x10 - "stack pointer", this is an int main
+  mov DWORD [rbp-0x8], 0x1ceb00da  #move dword at mem location rbp -0x8 to 0x1ceb00da, this is a double
   mov DWORD [rbp-0x4], 0xfeedface
 
   mov eax, DWORD [rbp-0x4]

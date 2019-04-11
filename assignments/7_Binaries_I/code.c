@@ -1,16 +1,3 @@
-/*
- * Name: *Michael Wong*
- * Section: *0201*
- *
- * I pledge on my honor that I have not given or received any unauthorized
- * assistance on this assignment or examination.
- *
- * Digital acknowledgement: *Michael Wong*
- */
-
-/* your code goes here */
-
-
 #include <stdio.h>
 
 int main () {
@@ -30,6 +17,5 @@ int main () {
   printf(a_fmt, a);
   printf(b_fmt, b);
 
-  return 0; 
+  return 0;
 }
-
