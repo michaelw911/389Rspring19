@@ -10,7 +10,9 @@ Digital acknowledgement: Michael Wong
 
 ## Assignment Writeup
 
-### Part 1 (100 Pts)
+### Part 1 (70 Pts)
+
+### Part 2 (30 Pts)
 
 I was able to crack the following passwords:
 
