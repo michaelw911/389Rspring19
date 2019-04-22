@@ -12,8 +12,6 @@ Digital acknowledgement: Michael Wong
 
 ### Part 1 (70 Pts)
 
-### Part 2 (30 Pts)
-
 I was able to crack the following passwords:
 
 freedom:52e5a82e5763533be232e82482d3e6f44118f88b1b6bd3224134341979fe43cc
@@ -27,5 +25,27 @@ shadow:3f6c2527aa5f8eb3ae4bd5b33d772ba819196a95f09ad430c67c3b5b9570711e
 welcome:3d925228586369644c84ae5da6753faf8109db1f725c60ccb6dffb914797d289
 matrix:247ead31de7efd5c8fd859630ecb959c4e6240646fcd4d41962f25b1fb33c702
 
-I was able to get these passwords and their associated hashes by using my crack.py. While doing so, I had to use '.rstrip()' in order to delete the new line character in creating and comparing hashes. 
+I was able to get these passwords and their associated hashes by using my crack.py. While doing so, I had to use '.rstrip()' in order to delete the new line character in creating and comparing hashes.
+
+### Part 2 (30 Pts)
+
+CMSC389R-{h@sh1ng_@nd_sl@sh1ng}
+
+Output:
+can you crack this hash?
+
+d516778c9a6621a800faf9a159c9c67b6e83bcd7ee5a35e40f38915ba053d6b3
+>>>
+Password is westrella
+how about this hash?
+
+fc02a8c9384d5fc034f2a392293aed96acfb868b0db3beb18bc43791e393d1bb
+>>>
+Password is acomputer
+and this hash?
+
+3412c89f499cdeeda146fd906f6e6169a92fe659597649c1b17df2fc2e6543e7
+>>>
+Password is cmustang
+
 
