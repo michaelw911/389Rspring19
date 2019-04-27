@@ -6,6 +6,7 @@ import socket
 import time
 
 def server_crack():
+<<<<<<< HEAD
   hashes = open("../hashes.txt", "r").readlines()
   passwords = open("../passwords.txt", "r").readlines()
   characters = string.ascii_lowercase
@@ -42,6 +43,19 @@ def server_crack():
   s.close()
   return
 
+=======
+    hashes = # open and read hashes.txt
+    passwords = # open and read passwords.txt
+    characters = string.ascii_lowercase
+    server_ip = 'put_your_ip_here'
+    server_port = 00000
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((server_ip, server_port))
+    data = s.recv(1024)
+    # parse data
+    # crack 3 times
+>>>>>>> upstream/master
 
 if __name__ == "__main__":
     server_crack()
