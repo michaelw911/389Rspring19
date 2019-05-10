@@ -12,6 +12,12 @@ Digital acknowledgement: Michael Wong
 
 ### Part 1 (40 Pts)
 
+I was able to get the flag by using the following sql injection in the url
+
+http://1337bank.money:5000/item?id=1' || 1=1 -- -
+
+CMSC389R-{y0u_ar3_th3_SQ1_ninj@}
+
 ### Part 2 (60 Pts)
 
 Level 1:
